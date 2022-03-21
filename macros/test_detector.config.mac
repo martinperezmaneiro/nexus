@@ -1,0 +1,14 @@
+## ----------------------------------------------------------------------------
+## nexus | NEXT100.config.mac
+##
+## Configuration macro to simulate Kr83m radioactive decays in a
+## cylindric volume.
+##
+## The NEXT Collaboration
+## ----------------------------------------------------------------------------
+
+##### GEOMETRY #####
+/Geometry/test_geometry/pressure 10. bar
+/Geometry/test_geometry/radius 100. cm
+/Geometry/test_geometry/length 300. cm
+/Geometry/test_geometry/thickness 4. cm

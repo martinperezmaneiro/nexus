@@ -1,0 +1,27 @@
+## ----------------------------------------------------------------------------
+## nexus | test_detector.init.mac
+##
+## Initialization macro to simulate Kr83m radioactive decays in a
+## cylindric volume.
+##
+## The NEXT Collaboration
+## ----------------------------------------------------------------------------
+
+/PhysicsList/RegisterPhysics G4EmStandardPhysics_option4
+/PhysicsList/RegisterPhysics G4DecayPhysics
+/PhysicsList/RegisterPhysics G4RadioactiveDecayPhysics
+/PhysicsList/RegisterPhysics NexusPhysics
+/PhysicsList/RegisterPhysics G4StepLimiterPhysics
+
+/nexus/RegisterGeometry test_geometry
+
+/nexus/RegisterGenerator IonGenerator
+
+/nexus/RegisterPersistencyManager PersistencyManager
+
+/nexus/RegisterRunAction DefaultRunAction
+/nexus/RegisterEventAction DefaultEventAction
+/nexus/RegisterTrackingAction DefaultTrackingAction
+
+/nexus/RegisterMacro macros/test_detector.config.mac
+
