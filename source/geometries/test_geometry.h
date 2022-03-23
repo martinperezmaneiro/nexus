@@ -10,11 +10,12 @@
 #define TEST_GEOMETRY_H
 
 #include "GeometryBase.h"
+#include <G4Navigator.hh>
 #include <vector>
 
 class G4Material;
 class G4GenericMessenger;
-namespace nexus { class SpherePointSampler; }
+namespace nexus { class CylinderPointSampler2020; }
 
 
 namespace nexus {
@@ -46,7 +47,10 @@ namespace nexus {
     std::vector<G4ThreeVector> pmt_positions_;
     
     /// Vertexes random generator
-    SpherePointSampler* sphere_vertex_gen_;
+    CylinderPointSampler2020* cylinder_vertex_gen_;
+
+    /// Geometry Navigator
+    G4Navigator* geom_navigator_;
 
     /// Messenger for the definition of control commands
     G4GenericMessenger* msg_;

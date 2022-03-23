@@ -9,21 +9,24 @@
 #include "test_geometry.h"
 
 #include "PmtR11410.h"
-#include "SpherePointSampler.h"
+#include "CylinderPointSampler2020.h"
 #include "MaterialsList.h"
 #include "IonizationSD.h"
 #include "FactoryBase.h"
 
 #include <G4GenericMessenger.hh>
+#include <G4Navigator.hh>
 #include <G4Tubs.hh>
 #include <G4NistManager.hh>
 #include <G4LogicalVolume.hh>
+#include <G4VPhysicalVolume.hh>
 #include <G4PVPlacement.hh>
 #include <G4ThreeVector.hh>
 #include <G4Material.hh>
 #include <G4VisAttributes.hh>
 #include <G4SDManager.hh>
 #include <G4VUserDetectorConstruction.hh>
+#include <G4TransportationManager.hh>
 
 #include <CLHEP/Units/SystemOfUnits.h>
 
@@ -37,8 +40,14 @@ namespace nexus {
   test_geometry::test_geometry():
     GeometryBase(), pressure_(STP_Pressure),
     radius_(100.*cm), length_(500.*cm), thickn_(1.*cm),
-    sphere_vertex_gen_(0), num_PMTs_(168)
+    cylinder_vertex_gen_(0), num_PMTs_(168)
   {
+
+    /// Initializing the geometry navigator (used in vertex generation)
+    geom_navigator_ =
+      G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
+
+    /// Messenger
     msg_ = new G4GenericMessenger(this, "/Geometry/test_geometry/",
       "Control commands of test geometry.");
 
@@ -67,16 +76,13 @@ namespace nexus {
     thickn_cmd.SetUnitCategory("Length");
     thickn_cmd.SetParameterName("thickness", false);
     thickn_cmd.SetRange("thickness>0.");
-
-    // Create a vertex generator for a sphere
-    sphere_vertex_gen_ = new SpherePointSampler(radius_, 0.);
   }
 
 
 
   test_geometry::~test_geometry()
   {
-    delete sphere_vertex_gen_;
+    delete cylinder_vertex_gen_;
     delete msg_;
   }
 
@@ -86,7 +92,7 @@ namespace nexus {
   {
 
     GeneratePositions();
-    
+
 
     // CHAMBER
     G4Tubs* chamber_solid = new G4Tubs("CHAMBER", 0.*cm, (radius_ + thickn_),
@@ -94,7 +100,7 @@ namespace nexus {
 
     G4LogicalVolume* chamber_logic = new G4LogicalVolume(chamber_solid,
                                                          materials::Steel(), "CHAMBER");
-    
+
     GeometryBase::SetLogicalVolume(chamber_logic);
 
     // GAS
@@ -120,14 +126,15 @@ namespace nexus {
     G4ThreeVector pmt_pos = pmt_positions_[0];
     pmt_pos.setZ(-pmt_zpos);
     new G4PVPlacement(0, pmt_pos, pmt_logic, "PMT", gas_logic, false, 0, true);
-    
+
     for (G4int i=1; i<num_PMTs_; i++) {
       pmt_pos = pmt_positions_[i];
       pmt_pos.setZ(-pmt_zpos);
       new G4PVPlacement(0, pmt_pos, pmt_logic, "PMT", gas_logic, false, 0, true);
-
     }
-    //new G4PVPlacement(0, G4ThreeVector(0., 0., -pmt_zpos), pmt_logic, "PMT", gas_logic, false, 0, true);
+
+    // Create a vertex generator for a cylinder
+    cylinder_vertex_gen_ = new CylinderPointSampler2020(0.*cm, radius_, length_/2., 0.*rad, 2. * M_PI * rad);
 
   }
 
@@ -135,7 +142,20 @@ namespace nexus {
 
   G4ThreeVector test_geometry::GenerateVertex(const G4String& region) const
   {
-    return sphere_vertex_gen_->GenerateVertex(region);
+    G4ThreeVector vertex(0., 0., 0.);
+
+      if (region == "GAS") {
+        G4VPhysicalVolume *VertexVolume;
+        do {
+          vertex = cylinder_vertex_gen_->GenerateVertex("VOLUME");
+          G4ThreeVector glob_vtx(vertex);
+          glob_vtx = glob_vtx + G4ThreeVector(0., 0., 0.);
+          VertexVolume =
+            geom_navigator_->LocateGlobalPointAndSetup(glob_vtx, 0, false);
+        } while (VertexVolume->GetName() != region);
+      }
+
+    return vertex;
   }
 
 void test_geometry::GeneratePositions()
@@ -146,7 +166,7 @@ void test_geometry::GeneratePositions()
 
     G4int num_conc_circles = 7;
     G4int num_inner_pmts = 6;
-    G4double x_pitch = 125 * mm; 
+    G4double x_pitch = 125 * mm;
     G4double y_pitch = 108.3 * mm;
     G4int total_positions = 0;
     G4ThreeVector position(0.,0.,0.);
