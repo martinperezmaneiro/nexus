@@ -12,3 +12,8 @@
 /Geometry/test_geometry/radius 100. cm
 /Geometry/test_geometry/length 300. cm
 /Geometry/test_geometry/thickness 4. cm
+
+##### GEOMETRY #####
+/Generator/Kr83mGenerator/region GAS
+
+/nexus/persistency/outputFile test_geometry

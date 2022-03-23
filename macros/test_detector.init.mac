@@ -15,7 +15,7 @@
 
 /nexus/RegisterGeometry test_geometry
 
-/nexus/RegisterGenerator IonGenerator
+/nexus/RegisterGenerator Kr83mGenerator
 
 /nexus/RegisterPersistencyManager PersistencyManager
 
@@ -24,4 +24,3 @@
 /nexus/RegisterTrackingAction DefaultTrackingAction
 
 /nexus/RegisterMacro macros/test_detector.config.mac
-
