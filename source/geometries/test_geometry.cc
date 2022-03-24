@@ -1,7 +1,7 @@
 // ----------------------------------------------------------------------------
 // nexus | test_geometry.cc
 //
-// Simple cylindrical  geometry for nexus exercise.
+// Simple cylindrical geometry for nexus exercise.
 //
 // The NEXT Collaboration
 // ----------------------------------------------------------------------------
