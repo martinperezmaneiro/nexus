@@ -14,6 +14,6 @@
 /Geometry/test_geometry/thickness 4. cm
 
 ##### GEOMETRY #####
-/Generator/Kr83mGenerator/region GAS
+/Generator/test_generator/region GAS
 
 /nexus/persistency/outputFile test_geometry

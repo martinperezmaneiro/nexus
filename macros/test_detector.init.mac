@@ -15,7 +15,7 @@
 
 /nexus/RegisterGeometry test_geometry
 
-/nexus/RegisterGenerator Kr83mGenerator
+/nexus/RegisterGenerator test_generator
 
 /nexus/RegisterPersistencyManager PersistencyManager
 
