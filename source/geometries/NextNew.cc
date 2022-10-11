@@ -179,13 +179,17 @@ namespace nexus {
 				   hallA_length, hallA_length);
       G4Material *vacuum =
 	G4NistManager::Instance()->FindOrBuildMaterial("G4_Galactic");
+      vacuum->SetMaterialPropertiesTable(new G4MaterialPropertiesTable());
+
       lab_logic_ = new G4LogicalVolume(lab_solid, vacuum, "LAB");
       this->SetSpan(2 * hallA_length);
     } else {
       G4Box* lab_solid =
 	new G4Box("LAB", lab_size_/2., lab_size_/2., lab_size_/2.);
 
-      lab_logic_ = new G4LogicalVolume(lab_solid, G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR"), "LAB");
+      G4Material* air_mat = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
+      air_mat->SetMaterialPropertiesTable(new G4MaterialPropertiesTable());
+      lab_logic_ = new G4LogicalVolume(lab_solid, air_mat, "LAB");
     }
     lab_logic_->SetVisAttributes(G4VisAttributes::GetInvisible());
 
@@ -508,6 +512,8 @@ namespace nexus {
         G4Exception("[NextNew]", "GenerateVertex()", FatalException,
                     "This vertex generation region must be used with lab_walls == true!");
       vertex = hallA_walls_->GenerateVertex(region);
+      while (vertex[1]<(-shielding_->GetHeight()/2.)){
+        vertex = hallA_walls_->GenerateVertex(region);}
       vertex = displ_ + vertex;
     }
 

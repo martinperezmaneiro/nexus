@@ -44,6 +44,7 @@ namespace nexus {
     void StoreCurrentEvent(G4bool);
     void InteractingEvent(G4bool);
     void StoreSteps(G4bool);
+    void SaveNumbOfInteractingEvents(G4bool);
 
     ///
     virtual G4bool Store(const G4Event*);
@@ -81,15 +82,16 @@ namespace nexus {
     G4bool store_evt_; ///< Should we store the current event?
     G4bool store_steps_; ///< Should we store the steps for the current event?
     G4bool interacting_evt_; ///< Has the current event interacted in ACTIVE?
+    G4bool save_ie_numb_; ///< Should we save the number of interacting events in the configuration table?
 
     G4String event_type_; ///< event type: bb0nu, bb2nu, background or not set
 
-    G4int saved_evts_; ///< number of events to be saved
-    G4int interacting_evts_; ///< number of events interacting in ACTIVE
+    int64_t saved_evts_; ///< number of events to be saved
+    int64_t interacting_evts_; ///< number of events interacting in ACTIVE
     G4double pmt_bin_size_, sipm_bin_size_; ///< bin width of sensors
 
-    G4int nevt_; ///< Event ID
-    G4int start_id_; ///< ID for the first event in file
+    int64_t nevt_; ///< Event ID
+    int64_t start_id_; ///< ID for the first event in file
     G4bool first_evt_; ///< true only for the first event of the run
 
     HDF5Writer* h5writer_;  ///< Event writer to hdf5 file
@@ -109,6 +111,8 @@ namespace nexus {
   { store_steps_ = ss; }
   inline void PersistencyManager::InteractingEvent(G4bool ie)
   { interacting_evt_ = ie; }
+  inline void PersistencyManager::SaveNumbOfInteractingEvents(G4bool sie)
+  {save_ie_numb_ = sie;}
   inline G4bool PersistencyManager::Store(const G4VPhysicalVolume*)
   { return false; }
   inline G4bool PersistencyManager::Retrieve(G4Event*&)

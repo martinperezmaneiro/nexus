@@ -272,23 +272,22 @@ void Next100SiPMBoard::Construct()
 
   // VERTEX GENERATOR ////////////////////////////////////////////////
 
-  vtxgen_ = new BoxPointSampler(size_, size_, board_thickness_, 0.,
-                                G4ThreeVector(0., 0., -mask_thickness_/2.));
+  vtxgen_ = new BoxPointSampler(size_, size_, board_thickness_+mask_thickness_, 0.,
+                                G4ThreeVector(0., 0., 0));
 
   // VISIBILITIES ////////////////////////////////////////////////////
   if (visibility_) {
-    G4VisAttributes blue       = Blue();
     G4VisAttributes light_blue = LightBlue();
-    board_logic_vol ->SetVisAttributes(blue);
     mask_logic_vol  ->SetVisAttributes(light_blue);
   }
   else{
-    board_logic_vol ->SetVisAttributes(G4VisAttributes::GetInvisible());
     mask_logic_vol  ->SetVisAttributes(G4VisAttributes::GetInvisible());
   }
   mask_hole_logic_vol    ->SetVisAttributes(G4VisAttributes::GetInvisible());
   mask_wls_logic_vol     ->SetVisAttributes(G4VisAttributes::GetInvisible());
   mask_wls_hole_logic_vol->SetVisAttributes(G4VisAttributes::GetInvisible());
+  wall_wls_logic_vol     ->SetVisAttributes(G4VisAttributes::GetInvisible());
+  board_logic_vol ->SetVisAttributes(G4VisAttributes::GetInvisible());
 }
 
 

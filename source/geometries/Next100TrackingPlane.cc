@@ -22,6 +22,8 @@
 #include <G4NistManager.hh>
 #include <Randomize.hh>
 #include <G4VisAttributes.hh>
+#include <G4Navigator.hh>
+#include <G4TransportationManager.hh>
 
 using namespace nexus;
 
@@ -43,6 +45,9 @@ Next100TrackingPlane::Next100TrackingPlane():
 
   msg_->DeclareProperty("tracking_plane_vis", visibility_,
                         "Visibility of the tracking plane volumes.");
+
+  geom_navigator_ =
+                  G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
 }
 
 
@@ -146,13 +151,14 @@ void Next100TrackingPlane::Construct()
 
 
   // VISIBILITIES //////////////////////////////////////////
+  plug_logic        ->SetVisAttributes(G4VisAttributes::GetInvisible());
   if (visibility_) {
-    G4VisAttributes copper_brown = CopperBrown();
+    G4VisAttributes copper_brown = CopperBrownAlpha();
+    copper_brown.SetForceSolid(true);
     copper_plate_logic->SetVisAttributes(copper_brown);
   } else {
     copper_plate_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
     sipm_board_logic  ->SetVisAttributes(G4VisAttributes::GetInvisible());
-    plug_logic        ->SetVisAttributes(G4VisAttributes::GetInvisible());
   }
 
 }
@@ -196,12 +202,22 @@ void Next100TrackingPlane::PrintSiPMPositions() const
 
 G4ThreeVector Next100TrackingPlane::GenerateVertex(const G4String& region) const
 {
-  G4ThreeVector vertex;
+  G4ThreeVector vertex(0., 0., 0.);
+  G4VPhysicalVolume *VertexVolume;
 
   if (region == "SIPM_BOARD") {
-    vertex = sipm_board_geom_->GenerateVertex("");
-    G4int board_num = G4RandFlat::shootInt((long) 0, board_pos_.size());
-    vertex += board_pos_[board_num];
+    do {
+        vertex = sipm_board_geom_->GenerateVertex("");
+        G4int board_num = G4RandFlat::shootInt((long) 0, board_pos_.size());
+        vertex += board_pos_[board_num];
+        G4ThreeVector glob_vtx(vertex);
+        glob_vtx = glob_vtx + G4ThreeVector(0, 0, -GetELzCoord());
+        VertexVolume =
+          geom_navigator_->LocateGlobalPointAndSetup(glob_vtx, 0, false);
+
+      } while ((VertexVolume->GetName() == "SIPM_BOARD_MASK_HOLE")  ||
+              (VertexVolume->GetName() == "SIPM_BOARD_MASK_WLS_HOLE"));
+
   }
   else if (region == "DB_PLUG") {
     vertex = plug_gen_->GenerateVertex("INSIDE");
